@@ -4,6 +4,7 @@ import email
 EMAIL_ADDRESS = input("What is your email address?: ")
 PASSWORD = input("What is your password?: ")
 IMAP = input("What is your IMAP server? (if unsure, google your email host + imap to find out): ")
+LIMITER = int(input("Enter the number of last emails you would like to check. This is optional. If nothing is entered, every email in your inbox will be checked. This could take some time.: ")) 
 PHRASES = ['unfortunately', 'move forward with other candidates', 'not to move forward', 'will not be moving forward']
 
 mail = imaplib.IMAP4_SSL(IMAP)
@@ -13,6 +14,8 @@ status, messages = mail.select("inbox") # connect to inbox.
 result, data = mail.search(None, "ALL")
 ids = data[0] # data is a list.
 id_list = ids.split() # ids is a space separated string
+if LIMITER: 
+        id_list = id_list[-LIMITER:]
 counter = 0
  
 
