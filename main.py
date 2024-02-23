@@ -1,8 +1,9 @@
 import imaplib
 import email
+import getpass
 
 EMAIL_ADDRESS = input("What is your email address?: ")
-PASSWORD = input("What is your password?: ")
+PASSWORD = getpass.getpass(prompt='Enter your password: ')
 IMAP = input("What is your IMAP server? (if unsure, google your email host + imap to find out): ")
 LIMITER = int(input("Enter the number of last recieved emails you would like to check. This is optional. If nothing is entered, every email in your inbox will be checked. This could take some time.: ")) 
 PHRASES = ['unfortunately', 'move forward with other candidates', 'not to move forward', 'will not be moving forward']
