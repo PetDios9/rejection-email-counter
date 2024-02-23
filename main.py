@@ -1,20 +1,44 @@
 import imaplib
 import email
-from dotenv import load_dotenv
 
-mail = imaplib.IMAP4_SSL('imap.gmail.com')
-mail.login('email', 'password')
+EMAIL_ADDRESS = input("What is your email address?: ")
+PASSWORD = input("What is your password?: ")
+IMAP = input("What is your IMAP server? (if unsure, google your email host + imap to find out): ")
+PHRASES = ['unfortunately', 'move forward with other candidates', 'not to move forward', 'will not be moving forward']
+
+mail = imaplib.IMAP4_SSL(IMAP)
+mail.login(EMAIL_ADDRESS, PASSWORD)
 
 status, messages = mail.select("inbox") # connect to inbox.
 result, data = mail.search(None, "ALL")
- 
 ids = data[0] # data is a list.
 id_list = ids.split() # ids is a space separated string
-latest_email_id = id_list[-1] # get the latest
+counter = 0
  
-result, data = mail.fetch(latest_email_id, "(RFC822)") # fetch the email body (RFC822) for the given ID
- 
-raw_email = data[0][1] # here's the body, which is raw text of the whole email
-search = mail.search(None, '(BODY "with other candidates")')
-decoded_search = search[1][0].decode("utf-8")
-print(len(decoded_search.split(' ')))
+
+print('counting your rejections...')
+print('#################################')
+for ids in id_list:
+    result, data = mail.fetch(ids, "(RFC822)")
+    if result == 'OK': 
+        email_message = email.message_from_bytes(data[0][1])
+        b = email_message 
+        body = ""
+
+        if b.is_multipart():
+            for part in b.walk():
+                ctype = part.get_content_type()
+                cdispo = str(part.get('Content-Disposition'))
+
+                if ctype == 'text/plain' and 'attachment' not in cdispo:
+                    body = part.get_payload(decode=True)  # decode
+                    break
+        else:
+            body = b.get_payload(decode=True)
+
+        for phrase in PHRASES:
+            if phrase in str(body).lower():
+                counter += 1
+                break
+print(f"Heres how many times a job has rejected you: {counter}")
+                
