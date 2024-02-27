@@ -19,30 +19,32 @@ if LIMITER:
         id_list = id_list[-LIMITER:]
 counter = 0
  
+def count_rejections():
+    print('counting your rejections...')
+    print('#################################')
+    for ids in id_list:
+        result, data = mail.fetch(ids, "(RFC822)")
+        if result == 'OK': 
+            email_message = email.message_from_bytes(data[0][1])
+            b = email_message 
+            body = ""
 
-print('counting your rejections...')
-print('#################################')
-for ids in id_list:
-    result, data = mail.fetch(ids, "(RFC822)")
-    if result == 'OK': 
-        email_message = email.message_from_bytes(data[0][1])
-        b = email_message 
-        body = ""
+            if b.is_multipart():
+                for part in b.walk():
+                    ctype = part.get_content_type()
+                    cdispo = str(part.get('Content-Disposition'))
 
-        if b.is_multipart():
-            for part in b.walk():
-                ctype = part.get_content_type()
-                cdispo = str(part.get('Content-Disposition'))
+                    if ctype == 'text/plain' and 'attachment' not in cdispo:
+                        body = part.get_payload(decode=True)  # decode
+                        break
+            else:
+                body = b.get_payload(decode=True)
 
-                if ctype == 'text/plain' and 'attachment' not in cdispo:
-                    body = part.get_payload(decode=True)  # decode
+            for phrase in PHRASES:
+                if phrase in str(body).lower():
+                    counter += 1
                     break
-        else:
-            body = b.get_payload(decode=True)
+    print(f"Heres how many times a job has rejected you: {counter}")
 
-        for phrase in PHRASES:
-            if phrase in str(body).lower():
-                counter += 1
-                break
-print(f"Heres how many times a job has rejected you: {counter}")
-                
+if __name__ == "__main__":
+    count_rejections()
