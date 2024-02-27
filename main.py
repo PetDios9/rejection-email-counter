@@ -45,6 +45,7 @@ def count_rejections():
                     counter += 1
                     break
     print(f"Heres how many times a job has rejected you: {counter}")
+    mail.logout()
 
 if __name__ == "__main__":
     count_rejections()
